@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI-Driven Train Induction Planning — Kochi Metro (Smart Automation)</title>
+  <meta name="description" content="AI-driven induction planning & scheduling for Kochi Metro — automated train assignment, demand-aware scheduling, and real-time optimization." />
+
+  <!-- Google Font (replace / add as needed) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------- Base ---------- */
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent1:#06b6d4; /* cyan */
+      --accent2:#7c3aed; /* violet */
+      --glass: rgba(255,255,255,0.04);
+      --radius:16px;
+      --maxwidth:1100px;
+      --glass-2: rgba(255,255,255,0.02);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071026 0%, #071126 40%, #041226 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:32px 18px;
+      display:flex;
+      justify-content:center;
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--maxwidth);
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:28px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color:inherit;
+    }
+    .logo{
+      width:52px;height:52px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:flex;align-items:center;justify-content:center;font-weight:800;
+      box-shadow:0 6px 18px rgba(124,58,237,0.15);
+    }
+    .brand h1{font-size:16px;margin:0}
+    .brand p{font-size:12px;margin:0;color:var(--muted)}
+
+    nav a{color:var(--muted);margin-left:18px;text-decoration:none;font-weight:600;font-size:14px}
+    nav a.cta{background:linear-gradient(90deg,var(--accent1),var(--accent2));padding:8px 12px;border-radius:10px;color:white}
+
+    /* ---------- Hero ---------- */
+    .hero{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:center;
+      margin-bottom:36px;
+    }
+    @media(max-width:960px){
+      .hero{grid-template-columns:1fr; padding-bottom:8px}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow: 0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .hero h2{font-size:28px;margin:0 0 10px 0}
+    .hero p.lead{color:var(--muted);margin-bottom:18px}
+
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:inherit;font-weight:700;text-decoration:none;cursor:pointer;
+    }
+    .btn.primary{
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;border:0;box-shadow: 0 10px 30px rgba(124,58,237,0.18);
+    }
+
+    /* stat row */
+    .stats{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap}
+    .stat{background:var(--glass);padding:10px 12px;border-radius:10px;font-weight:700;font-size:14px;color:var(--muted)}
+    .stat strong{display:block;color:white;font-size:18px}
+
+    /* ---------- Right panel / demo ---------- */
+    .demo{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .demo h3{margin:0}
+    .input-row{display:flex;gap:10px;flex-wrap:wrap}
+    .input-row input, .input-row select{
+      background:var(--glass-2);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;color:inherit;font-weight:600;
+    }
+    .mini{
+      font-size:13px;color:var(--muted)
+    }
+    .schedule{
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+      border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,0.02);max-height:280px;overflow:auto;
+    }
+    .schedule table{width:100%;border-collapse:collapse;font-size:13px}
+    .schedule th, .schedule td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .schedule th{color:var(--muted);font-weight:700}
+
+    /* ---------- Features / How it works ---------- */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+    @media(max-width:960px){.grid{grid-template-columns:repeat(1,1fr)}}
+    .feature{background:var(--glass);padding:18px;border-radius:12px}
+    .feature h4{margin:0 0 10px 0}
+
+    /* ---------- Footer ---------- */
+    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:13px;padding:18px}
+    .brand-small{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:8px}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a class="brand" href="#" aria-label="Home">
+        <div class="logo">KM</div>
+        <div>
+          <h1>AI Induction — Kochi Metro</h1>
+          <p>Smart automation • Demand-aware scheduling</p>
+        </div>
+      </a>
+
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#demo">Demo</a>
+        <a href="#contact" class="cta">Request pilot</a>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+          <div style="max-width:62%;">
+            <h2>AI-Driven Train Induction Planning & Scheduling</h2>
+            <p class="lead">Optimize Kochi Metro's train inductions, reduce empty runs, automate crew & train assignments, and adapt schedules to live passenger demand using ML-driven optimization.</p>
+
+            <div class="cta-row">
+              <button class="btn primary" id="simulateBtn">Generate sample schedule</button>
+              <a class="btn" href="#how">See algorithm</a>
+              <a class="btn" href="#contact">Contact team</a>
+            </div>
+
+            <div class="stats" aria-hidden="true">
+              <div class="stat"><span class="mini">Simulated reduction</span><strong>~12%</strong><span class="muted">empty-runs</span></div>
+              <div class="stat"><span class="mini">Avg. wait time</span><strong>3.5 min</strong><span class="muted">peak hours</span></div>
+              <div class="stat"><span class="mini">Fleet utilization</span><strong>92%</strong><span class="muted">effective</span></div>
+            </div>
+          </div>
+
+          <!-- small note card -->
+          <div class="muted" style="text-align:right;min-width:180px">
+            <div style="padding:8px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border:1px solid rgba(255,255,255,0.02)">
+              <div class="mini">Pilot</div>
+              <h3 style="margin:6px 0 0 0">Kochi Metro • Smart Automation</h3>
+              <p class="mini" style="margin-top:8px;color:var(--muted)">Modular architecture — can integrate with existing SCADA & scheduling APIs.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- quick bullet summary -->
+        <ul style="margin-top:18px;color:var(--muted);line-height:1.6">
+          <li>Demand-aware dispatching using passenger volume forecasts</li>
+          <li>Automated train induction, maintenance-aware scheduling</li>
+          <li>Real-time re-routing during incidents & disruptions</li>
+        </ul>
+      </div>
+
+      <!-- Right: Demo panel -->
+      <aside class="demo card" id="demo">
+        <h3>Quick demo — sample schedule</h3>
+        <div class="mini">Configure scenario & click <strong>Generate</strong> to see a mock output produced by the demo AI logic.</div>
+
+        <div class="input-row" style="margin-top:12px">
+          <select id="lineSelect" aria-label="Line">
+            <option value="line1">Line 1 — Aluva ↔️ Tripunithura</option>
+            <option value="line2">Line 2 — Example Line</option>
+          </select>
+
+          <input id="startHour" type="number" min="0" max="23" step="1" value="7" aria-label="Start hour" title="Start hour (0-23)"/>
+          <input id="period" type="number" min="10" max="240" step="10" value="60" aria-label="Period minutes" title="Total simulation period (minutes)"/>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn primary" id="generate">Generate</button>
+          <button class="btn" id="clear">Clear</button>
+        </div>
+
+        <div class="schedule" style="margin-top:12px" id="scheduleBox" aria-live="polite">
+          <table id="scheduleTable" role="table" aria-label="Generated schedule">
+            <thead>
+              <tr><th>Time</th><th>Train ID</th><th>Direction</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" style="color:var(--muted)">No schedule generated yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mini" style="margin-top:10px;color:var(--muted)">
+          This demo uses simplified heuristic logic to give an idea of the output format. Integrate real ML models & optimization solvers on the backend for production.
+        </div>
+      </aside>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+      <div class="grid">
+        <div class="feature card">
+          <h4>Demand Forecasting</h4>
+          <p class="muted">Short-term ridership predictions using time-series models and feed-forward data from ticketing / AFC systems.</p>
+        </div>
+        <div class="feature card">
+          <h4>Optimal Induction</h4>
+          <p class="muted">Assign trains to inductions by minimizing empty runs and crew idle time while respecting maintenance windows.</p>
+        </div>
+        <div class="feature card">
+          <h4>Real-time Rebalancing</h4>
+          <p class="muted">Dynamic schedule updates to handle incidents, surge demand, or unexpected delays with minimal passenger impact.</p>
+        </div>
+
+        <div class="feature card">
+          <h4>Simulator & Scenario Testing</h4>
+          <p class="muted">Run what-if scenarios (peak disruption, special events) to validate induction strategies before roll-out.</p>
+        </div>
+        <div class="feature card">
+          <h4>API-first Architecture</h4>
+          <p class="muted">Plug into your existing systems (SCADA, crew management, fleet telemetry) via secure APIs.</p>
+        </div>
+        <div class="feature card">
+          <h4>Compliance & Safety</h4>
+          <p class="muted">Scheduling constraints incorporate safety buffers, crew limits, and mandatory maintenance intervals.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" style="margin-top:26px">
+      <div class="card">
+        <h3>How it works — pipeline overview</h3>
+        <ol style="color:var(--muted);margin-top:8px;line-height:1.7">
+          <li>Ingest telemetry, AFC (ticketing), passenger counts, and maintenance windows.</li>
+          <li>Short-term demand forecasting (X minutes/hours ahead) using ML models.</li>
+          <li>Optimization engine (MILP / heuristic / metaheuristic) computes induction assignments subject to constraints.</li>
+          <li>Planner suggests schedule & re-optimization runs in real-time as events occur.</li>
+          <li>Operator dashboard and API endpoints allow human-in-the-loop overrides & auditing.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" style="margin-top:22px">
+      <div class="card" style="display:grid;grid-template-columns:1fr 360px;gap:18px">
+        <div>
+          <h3>Request a pilot / Contact</h3>
+          <p class="muted">Interested in a pilot with Kochi Metro? Fill the form or email the team — we'll connect and propose a proof-of-concept plan.</p>
+
+          <form id="contactForm" style="margin-top:12px;display:grid;gap:10px">
+            <input type="text" id="name" placeholder="Your name / org" required style="padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"/>
+            <input type="email" id="email" placeholder="Email" required style="padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"/>
+            <textarea id="message" rows="4" placeholder="Message / requirements" style="padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn primary" type="submit">Send request</button>
+              <button class="btn" type="button" id="downloadSpec">Download POC spec</button>
+            </div>
+          </form>
+
+          <div id="contactMsg" class="mini muted" style="margin-top:10px"></div>
+        </div>
+
+        <aside style="padding:18px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015))">
+          <h4>Pilot checklist</h4>
+          <ul style="color:var(--muted);line-height:1.7">
+            <li>Data access: AFC & telemetry</li>
+            <li>Integration: scheduling API / crew roster</li>
+            <li>Timeline: 6–10 weeks for POC</li>
+            <li>Success metric: reduce empty runs & improve on-time departures</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <footer>
+      <div class="brand-small">
+        <div class="logo" style="width:36px;height:36px;font-size:13px">KM</div>
+        <div>
+          <div style="font-weight:700">Kochi Metro — AI Induction</div>
+          <div class="muted">Built for transit planners • Prototype</div>
+        </div>
+      </div>
+      <div class="muted">© <span id="year"></span> Kochi Metro Smart Automation — Prototype. Replace this footer for production.</div>
+    </footer>
+  </div>
+
+  <script>
+    // ---------- Small client-side demo logic ----------
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function clearSchedule(){
+      const tbody = document.querySelector('#scheduleTable tbody');
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">No schedule generated yet.</td></tr>';
+    }
+
+    function formatTime(h, m=0){
+      const hh = String(h).padStart(2,'0');
+      const mm = String(m).padStart(2,'0');
+      return hh + ':' + mm;
+    }
+
+    // Simple mock "AI" which simulates generating induction schedule
+    function generateSchedule(line='line1', startHour=7, periodMinutes=60){
+      // This is illustrative only. Replace with backend API that runs real ML/optimization.
+      const trains = ['T-101','T-102','T-103','T-104','T-105'];
+      const directions = ['UP','DOWN'];
+      const tbody = document.querySelector('#scheduleTable tbody');
+      tbody.innerHTML = '';
+
+      // number of inductions roughly proportional to period length
+      const events = Math.max(4, Math.min(18, Math.round(periodMinutes / 6)));
+      let currentMin = 0;
+      for(let i=0;i<events;i++){
+        // simple spacing that adapts to demand: random variation around 6 minutes
+        const spacing = Math.max(4, Math.round(5 + Math.sin(i/2)*2 + (Math.random()*3-1)));
+        currentMin += spacing;
+        // compute time
+        let totalMins = startHour*60 + currentMin;
+        let hh = Math.floor(totalMins / 60) % 24;
+        let mm = totalMins % 60;
+        // pick train round-robin and direction influenced by index
+        const train = trains[i % trains.length];
+        const dir = directions[i % 2];
+        const action = (Math.random() > 0.85) ? 'Maintenance hold' : 'Induct';
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + formatTime(hh, mm) + '</td><td>' + train + '</td><td>' + dir + '</td><td>' + action + '</td>';
+        tbody.appendChild(tr);
+      }
+    }
+
+    // hooks
+    document.getElementById('generate').addEventListener('click', function(){
+      const start = parseInt(document.getElementById('startHour').value || '7', 10);
+      const period = parseInt(document.getElementById('period').value || '60', 10);
+      generateSchedule(document.getElementById('lineSelect').value, start, period);
+    });
+    document.getElementById('clear').addEventListener('click', clearSchedule);
+
+    // quick simulate top CTA
+    document.getElementById('simulateBtn').addEventListener('click', function(){
+      document.getElementById('startHour').value = 8;
+      document.getElementById('period').value = 90;
+      document.getElementById('generate').click();
+      window.location.hash = '#demo';
+    });
+
+    // contact form (demo only)
+    document.getElementById('contactForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      // In production: POST to backend endpoint. Here we'll just show confirmation.
+      document.getElementById('contactMsg').textContent = 'Thanks, ' + (name || 'there') + '! Your request has been noted. We will contact ' + (email || 'the provided email') + '.';
+      this.reset();
+    });
+
+    document.getElementById('downloadSpec').addEventListener('click', function(){
+      // Create a tiny POC spec file on-the-fly and download it
+      const text = [
+        'Kochi Metro — Pilot POC Specification',
+        '',
+        '1) Data sources needed: AFC exports, train telemetry, crew roster, maintenance windows.',
+        '2) Timeline: Data integration (2-3 wks), Model training (2-3 wks), POC tests (2-4 wks).',
+        '3) Success metrics: reduce empty runs, maintain on-time departures, maintain safety buffers.',
+        '',
+        'Contact: pilot@kochimetro.example'
+      ].join('\\n');
+      const blob = new Blob([text], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'KM_Pilot_Spec.txt'; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 2000);
+    });
+
+    // init
+    clearSchedule();
+  </script>
+</body>
+</html>
